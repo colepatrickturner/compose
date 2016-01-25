@@ -101,6 +101,12 @@ DOCKER_CONFIG_KEYS = [
     'volumes',
     'volumes_from',
     'working_dir',
+    "tags",
+    "roles",
+    "target_num_containers",
+    "autodestroy",
+    "autoredeploy",
+    "deployment_strategy"
 ]
 
 ALLOWED_KEYS = DOCKER_CONFIG_KEYS + [
@@ -189,6 +195,11 @@ class ConfigFile(namedtuple('_ConfigFile', 'filename config')):
 
         if version == '3':
             version = V3_0
+
+        if version not in (V2_0, V2_1, V3_0):
+            raise ConfigurationError(
+                'Version in "{}" is unsupported. {}'
+                .format(self.filename, VERSION_EXPLANATION))
 
         return version
 
@@ -619,10 +630,6 @@ def resolve_build_args(buildargs, environment):
 def validate_extended_service_dict(service_dict, filename, service):
     error_prefix = "Cannot extend service '%s' in %s:" % (service, filename)
 
-    if 'links' in service_dict:
-        raise ConfigurationError(
-            "%s services with 'links' cannot be extended" % error_prefix)
-
     if 'volumes_from' in service_dict:
         raise ConfigurationError(
             "%s services with 'volumes_from' cannot be extended" % error_prefix)
@@ -788,9 +795,6 @@ def finalize_service(service_config, service_names, version, environment):
     if 'networks' in service_dict:
         service_dict['networks'] = parse_networks(service_dict['networks'])
 
-    if 'restart' in service_dict:
-        service_dict['restart'] = parse_restart_spec(service_dict['restart'])
-
     if 'secrets' in service_dict:
         service_dict['secrets'] = [
             types.ServiceSecret.parse(s) for s in service_dict['secrets']
@@ -892,8 +896,8 @@ def merge_service_dicts(base, override, version):
         md.merge_field(field, merge_path_mappings)
 
     for field in [
-        'cap_add', 'cap_drop', 'expose', 'external_links',
-        'security_opt', 'volumes_from',
+        'ports', 'cap_add', 'cap_drop', 'expose', 'external_links',
+        'security_opt', 'volumes_from', 'depends_on', 'tags',
     ]:
         md.merge_field(field, merge_unique_items_lists, default=[])
 

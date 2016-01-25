@@ -68,4 +68,6 @@ RUN tox --notest
 ADD . /code/
 RUN chown -R user /code/
 
+WORKDIR /code/shared
+
 ENTRYPOINT ["/code/.tox/py27/bin/docker-compose"]
