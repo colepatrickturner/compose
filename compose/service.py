@@ -291,6 +291,7 @@ class Service(object):
             log.info("Creating %s" % container_options['name'])
         
         container_options.pop("tags", None)
+        container_options.pop("roles", None)
 
         try:
             return Container.create(self.client, **container_options)
