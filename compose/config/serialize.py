@@ -25,35 +25,17 @@ yaml.SafeDumper.add_representer(types.ServiceSecret, serialize_dict_type)
 yaml.SafeDumper.add_representer(types.ServicePort, serialize_dict_type)
 
 
-def serialize_config(config):
-    output = {
-		service.pop('name'): service for service in config.services
+def denormalize_config(config):
+    return {
+        service.pop('name'): service for service in config.services
     }
+
+def serialize_config(config):
     return yaml.safe_dump(
-        output,
+        denormalize_config(config),
         default_flow_style=False,
         indent=2,
         width=80)
-
-
-def serialize_ns_time_value(value):
-    result = (value, 'ns')
-    table = [
-        (1000., 'us'),
-        (1000., 'ms'),
-        (1000., 's'),
-        (60., 'm'),
-        (60., 'h')
-    ]
-    for stage in table:
-        tmp = value / stage[0]
-        if tmp == int(value / stage[0]):
-            value = tmp
-            result = (int(value), stage[1])
-        else:
-            break
-    return '{0}{1}'.format(*result)
-
 
 def denormalize_service_dict(service_dict, version):
     service_dict = service_dict.copy()
