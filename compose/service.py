@@ -289,6 +289,8 @@ class Service(object):
 
         if 'name' in container_options and not quiet:
             log.info("Creating %s" % container_options['name'])
+        
+        container_options.pop("tags", None)
 
         try:
             return Container.create(self.client, **container_options)
@@ -836,7 +838,6 @@ class Service(object):
             dns=options.get('dns'),
             dns_opt=options.get('dns_opt'),
             dns_search=options.get('dns_search'),
-            restart_policy=options.get('restart'),
             cap_add=options.get('cap_add'),
             cap_drop=options.get('cap_drop'),
             mem_limit=options.get('mem_limit'),
