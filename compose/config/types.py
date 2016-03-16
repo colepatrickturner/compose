@@ -76,7 +76,7 @@ class VolumeFromSpec(namedtuple('_VolumeFromSpec', 'source mode type')):
         return cls(source, mode, type)
 
     def repr(self):
-        return '{v.type}:{v.source}:{v.mode}'.format(v=self)
+        return '{v.source}'.format(v=self)
 
 
 def parse_restart_spec(restart_config):
@@ -204,8 +204,7 @@ class VolumeSpec(namedtuple('_VolumeSpec', 'external internal mode')):
 
     def repr(self):
         external = self.external + ':' if self.external else ''
-        mode = ':' + self.mode if self.external else ''
-        return '{ext}{v.internal}{mode}'.format(mode=mode, ext=external, v=self)
+        return '{ext}{v.internal}'.format(ext=external, v=self)
 
     @property
     def is_named_volume(self):
